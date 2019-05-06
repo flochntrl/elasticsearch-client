@@ -8,8 +8,9 @@
   "license": "MIT",
   "require": {
     "php": "^7.0",
-    "elasticsearch/elasticsearch": "^5.2",
-    "symfony/dependency-injection": "^3.0"
+    "elasticsearch/elasticsearch": "^5.2 || ^6.0",
+    "symfony/dependency-injection": "^3.0 || ^4.0",
+    "myclabs/php-enum": "^1.0"
   },
   "require-dev": {
     "atoum/atoum": "^3.0",
@@ -18,7 +19,8 @@
     "symfony/serializer": "^3.3",
     "guzzlehttp/ringphp": "^1.1",
     "symfony/yaml": "^3.3",
-    "symfony/var-dumper": "^3.3"
+    "symfony/var-dumper": "^3.3",
+    "webmozart/assert": "^1.0"
   },
   "suggest": {
     "symfony/serializer": "Is required when working with the SymfonySerializerBridge"

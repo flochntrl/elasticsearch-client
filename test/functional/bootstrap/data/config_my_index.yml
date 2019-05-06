@@ -2,20 +2,23 @@ settings:
     number_of_shards : 1
     number_of_replicas : 1
 mappings:
-    my_type:
-        _source : { enabled : true }
+    _doc:
         properties:
+            id:
+                type: keyword
             first_name:
-                type: string
+                type: text
                 analyzer: standard
                 search_analyzer: standard
             nick_name:
-                type: string
+                type: text
                 analyzer: standard
                 search_analyzer: standard
             description:
-                type: string
+                type: text
                 analyzer: standard
                 search_analyzer: standard
             age:
                 type: integer
+            gender:
+                type: keyword

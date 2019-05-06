@@ -2,6 +2,8 @@
 
 namespace Novaway\ElasticsearchClient;
 
+use Webmozart\Assert\Assert;
+
 class ObjectIndexer
 {
     /** @var Index */
@@ -19,9 +21,8 @@ class ObjectIndexer
     /**
      * @param Indexable $object
      * @param string $type
-     * @param string $type
      */
-    public function index(Indexable $object, $type)
+    public function index(Indexable $object, string $type = "_doc")
     {
         $params = [];
         $params['type'] = $type;
@@ -36,8 +37,28 @@ class ObjectIndexer
     }
 
     /**
-     * @param Indexable $object
+     * @param Indexable[] $objects
      * @param string $type
+     */
+    public function bulkIndex(array $objects, string $type = "_doc"): array
+    {
+        $params['type'] = $type;
+
+        Assert::allIsInstanceOf($objects, Indexable::class);
+
+        foreach ($objects as $indexable) {
+            $key = $indexable->shouldBeIndexed() ? 'index' : 'delete';
+            $body[] = [$key => ['_id' => $indexable->getId()]];
+            if ($indexable->shouldBeIndexed()) {
+                $body[] = $indexable->toArray();
+            }
+        }
+        $params['body'] = $body;
+        return $this->index->bulkIndex($params);
+    }
+
+    /**
+     * @param Indexable $object
      * @param string $type
      */
     public function remove(Indexable $object, $type)
@@ -47,7 +68,6 @@ class ObjectIndexer
 
     /**
      * @param Indexable $object
-     * @param string $type
      * @param string $type
      */
     public function removeById(string $objectId, $type)

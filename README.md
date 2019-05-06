@@ -2,6 +2,12 @@
 
 A lightweight PHP 7.0+ client for Elasticsearch, providing features over [Elasticsearch-PHP](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html)
 
+## Compatibility
+
+This branch is tested and compatible with ElasticSearch 6.*
+
+The compatibility with ElasticSearch 5.* is supported, and should work, but is to be considered hazardous.
+
 ## Installation
 
 Install using [composer](https://getcomposer.org):
@@ -47,9 +53,9 @@ $index = new \Novaway\ElasticsearchClient\Index(
 
 ### Index an object
 
-In order to be searched, objects should be indexed as a serialized version. In order to be indexed, Object sshould implement `\Novaway\ElasticsearchClient\Indexable` interface.
+In order to be searched, objects should be indexed as a serialized version. In order to be indexed, Object should implement `\Novaway\ElasticsearchClient\Indexable` interface.
 
-By default, objects are serialized by [Elasticsearch-PHP's SmartSerializer](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_serializers.html#_smartserializer), but you can chose to [use a custom serializer](doc/working-with-a-custom-serializer.md).
+By default, objects are serialized with [Elasticsearch-PHP's SmartSerializer](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_serializers.html#_smartserializer), but you can choose to [use a custom serializer](doc/working-with-a-custom-serializer.md).
 
 ```php
 $objectIndexer = new \Novaway\ElasticsearchClient\ObjectIndexer($index);
@@ -90,7 +96,7 @@ $queryBody = QueryBuilder::createNew()
 $queryExecutor->execute($queryBody, 'my_type');
 ```
 
-The `QueryBuilder` allow you to define a limit and an offset for search result, and to chose the minimum score to display.
+The `QueryBuilder` allow you to define a limit and an offset for a search result, and choose the minimum score to display.
 
 ```php
 const MIN_SCORE = 0.4;
@@ -100,21 +106,41 @@ const LIMIT = 10;
 $queryBuilder = QueryBuilder::createNew(0, 10, 0.3);
 ```
 
-> + **TODO** : Use a result formater
-+ **TODO** : Filtering results
+#### Advanced Querying
+
+This client provide several ways to improve querying :
+
+- Filtering *(missing documentation)*
+- [Aggregations](doc/aggregation.md)
+- Result Formating *(missing documentation)*
+
 
 ### Clear the index
 
-You might want, for some reason, to purge an index. The `reload` method drops and recreate the index.
+You might want, for some reason, to purge an index. The `reload` method drops and recreates the index.
 
 ```php
 $index->reload();
 ```
 
+### Hotswapping
 
-## Recommanded usage with Symfony
+You will want to reindex all your data sometimes.
 
-If you are using this library in a symfony project, we recommand to use it is as service.
+It is possible to do it without downtime using the hotswap mechanisme
+
+```php
+$index->hotswapToTmp();
+// at that point, all your search request will go to the tmp index, and your create/delete will go to the main index
+// when your are done reindexing your data, simply call 
+$index->hotswapToMain()
+
+```
+
+
+## Recommended usage with Symfony
+
+If you are using this library in a symfony project, we recommend to use it as service.
 
 ```yml
 # services.yml
@@ -154,6 +180,16 @@ services:
 
 Then you'll only have to work with the `myapp.search.object_indexer` and `myapp.search.query_executor` services.
 
+## Testing
+
+A testing environment is provided using a dockerized version of elasticsearch.
+
+Testing is done using the [Atoum](http://atoum.org/) framework for unit testing and the [Behat](http://behat.org/en/latest/) framework for behavior testing.
+
+A `Makefile` provide useful commands for testing, so you can run the full test suite by running :
+```sh
+$ make test
+```
 
 ## License
 
